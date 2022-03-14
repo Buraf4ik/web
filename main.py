@@ -95,11 +95,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/oop')
-def oop():
-    return render_template("oop.html")
-
-
 @app.route('/dictionary')
 def dictionary():
     user_list = list_of_users()
