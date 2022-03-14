@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+База данных
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Словарь</h1>
+</div>
+<form method="POST">
+    <ul>
+        {% if user_list %}
+        {% for user in user_list %}
+        <li>
+            <a href="{{ url_for('user_redirect',
+            user_name=user['first name'],
+            user_id = user['user id']
+                        ) }}">
+            {{user}}
+            </a>
+        </li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+</form>
+
+<div class="addMenu">
+    <form method="POST">
+        <input type="text" name="first name"><br>
+        <input type="text" name="last name"><br>
+        <input type="text" name="number"><br>
+        <input type="submit">
+    </form>
+</div>
+
+
+{% endblock %}

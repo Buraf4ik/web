@@ -1,0 +1,5 @@
+host = "127.0.0.1"
+user = "postgres"
+password = "ehjd2001"
+db_name = "web2"
+port = "5432"
