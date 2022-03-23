@@ -6,9 +6,11 @@
 {% block body %}
 {% if username and id %}
 Пользователь: {{username}}<br> ID: {{id}}<br>
-<a href="{{ url_for('deletion', user_id = id, user_name = username) }}">
-    Удалить пользователя!
+
+<a href=" {{ url_for('deletion', user_id=id) }} ">
+    delete user
 </a>
+
 {% else %}
 404
 {% endif %}

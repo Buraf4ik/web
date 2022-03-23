@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, escape
+from flask import Flask, render_template, url_for, request, escape, redirect
 import psycopg2
 from psycopg2 import OperationalError
 
@@ -21,39 +21,8 @@ def create_connection(db_name='web2', db_user='postgres', db_password='ehjd2001'
     return connection
 
 
-#
-#
-# create_connection('web2', 'postgres', 'ehjd2001', '127.0.0.1', '5432')
-
-
-def being_in_db(stud):
-    connection = create_connection('web2', 'postgres', 'ehjd2001', '127.0.0.1', '5432')
-    if connection is None:
-        return False
-    cursor = connection.cursor()
-    # cursor -объект делающий запросы в бд и получающий их результаты
-    cursor.execute('SELECT * FROM dictionary')
-    result = cursor.fetchall()
-    # fetchall возвращает список кортежей.Последовательная строка где каждая строка представляет собой последовательность элементов в столбцах.
-    if len(result) == 0:
-        return False
-    # если записи нет, то возвращает false
-    summ = []
-    for user in result:
-        user = list(user)
-        summ1 = []
-        for val in user:
-            summ1.append(val.strip())
-        summ.append(summ1)
-    for st in summ:
-        if ' '.join(st) == stud:
-            # пробел между каждой записью
-            return True
-    return False
-
-
 def recording_in_db(first_name, last_name, phone_number):
-    connection = create_connection('web2', 'postgres', 'ehjd2001', '127.0.0.1', '5432')
+    connection = create_connection()
     if connection is None:
         return False
     insert_query = (
@@ -67,18 +36,14 @@ def recording_in_db(first_name, last_name, phone_number):
 
 
 def list_of_users():
-    connection = create_connection('web2', 'postgres', 'ehjd2001', '127.0.0.1', '5432')
+    connection = create_connection()
     if connection is None:
         return False
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM dictionary")
     result = cursor.fetchall()
-    total = []
-    for user in result:
-        total.append(list(user))
-
     user_list = []
-    for val in total:
+    for val in result:
         user_list.append({
             'user id': str(val[0]), 'first name': val[1],
             'last name': val[2], 'phone number': val[3]
@@ -106,35 +71,50 @@ def add_request():
     first_name = request.form['first name']
     last_name = request.form['last name']
     number = request.form['number']
-    recording_in_db(first_name, last_name, number)
-    user_list = list_of_users()
-    return render_template("database.html", user_list=user_list)
+    if len(first_name) > 1 and len(last_name) > 1 and len(number) > 1:
+        recording_in_db(first_name, last_name, number)
+    else:
+        print("введен пустой пользовтель")
+    return render_template("database.html", user_list=list_of_users())
 
 
-@app.route('/user/')
+@app.route('/user')
 @app.route('/user/<user_name>/<user_id>')
 def user_redirect(user_name=None, user_id=None):
-    if user_name == "":
-        user_name = None
-    return render_template("user.html", username=user_name, id=user_id)
-
-
-@app.route('/dictionary')
-def deletion(user_id, user_name):
-    user_id = int(user_id)
+    print(user_name, user_id)
     connection = create_connection()
-    if connection is None:
-        return False
     insert_query = (
-        f"DELETE FROM dictionary WHERE ('first_name' = {user_name} , 'id' = {user_id})")
-
+        f"SELECT COUNT(*) FROM dictionary WHERE (first_name = '{user_name}' and id = '{user_id}')")
     try:
         cursor = connection.cursor()
         cursor.execute(insert_query)
         connection.commit()
     except OperationalError:
         print('something went wrong')
-    dictionary()
+    result = cursor.fetchone()[0]
+    print(result)
+    if result == 1:
+        return render_template("user.html", username=user_name, id=user_id)
+    else:
+        return render_template("user.html", username=None, id=None)
+
+
+@app.route('/user/<user_id>/delete')
+def deletion(user_id=None):
+    print(user_id)
+    user_id = int(user_id)
+    connection = create_connection()
+    if connection is None:
+        return False
+    insert_query = (
+        f"DELETE FROM dictionary WHERE (id = {user_id})")
+    try:
+        cursor = connection.cursor()
+        cursor.execute(insert_query)
+        connection.commit()
+    except OperationalError:
+        print('something went wrong')
+    return redirect('/dictionary')
 
 
 @app.route('/isak')

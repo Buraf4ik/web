@@ -6,7 +6,7 @@
 
 {% block body %}
 <div class="container">
-    <h1>Словарь</h1>
+    <h1>Справочник</h1>
 </div>
 <form method="POST">
     <ul>
@@ -17,7 +17,7 @@
             user_name=user['first name'],
             user_id = user['user id']
                         ) }}">
-            {{user}}
+                {{user}}
             </a>
         </li>
         {% endfor %}
@@ -27,9 +27,10 @@
 
 <div class="addMenu">
     <form method="POST">
-       <div>Имя</div><input type="text" name="first name"><br>
-        <div>Фамилия</div><input type="text" name="last name"><br>
-        <div>Номер</div><input type="text" name="number"><br>
+        <div></div>
+        <input type="text" name="first name" placeholder="Имя"><br><br>
+        <input type="text" name="last name" placeholder="Фамилия"><br><br>
+        <input type="text" name="number" placeholder="Номер"><br><br>
         <input type="submit">
     </form>
 </div>
